@@ -62,47 +62,39 @@ var XW = {
 	norABS: './xlsxworker1.js',
 	noxfer: './xlsxworker.js'
 };
-
 var rABS = typeof FileReader !== "undefined" && typeof FileReader.prototype !== "undefined" && typeof FileReader.prototype.readAsBinaryString !== "undefined";
 if(!rABS) {
 	document.getElementsByName("userabs")[0].disabled = true;
 	document.getElementsByName("userabs")[0].checked = false;
 }
-
 var use_worker = typeof Worker !== 'undefined';
 if(!use_worker) {
 	document.getElementsByName("useworker")[0].disabled = true;
 	document.getElementsByName("useworker")[0].checked = false;
 }
-
 var transferable = use_worker;
 if(!transferable) {
 	document.getElementsByName("xferable")[0].disabled = true;
 	document.getElementsByName("xferable")[0].checked = false;
 }
-
 var wtf_mode = false;
-
 function fixdata(data) {
 	var o = "", l = 0, w = 10240;
 	for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint8Array(data.slice(l*w,l*w+w)));
 	o+=String.fromCharCode.apply(null, new Uint8Array(data.slice(l*w)));
 	return o;
 }
-
 function ab2str(data) {
 	var o = "", l = 0, w = 10240;
 	for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint16Array(data.slice(l*w,l*w+w)));
 	o+=String.fromCharCode.apply(null, new Uint16Array(data.slice(l*w)));
 	return o;
 }
-
 function s2ab(s) {
 	var b = new ArrayBuffer(s.length*2), v = new Uint16Array(b);
 	for (var i=0; i != s.length; ++i) v[i] = s.charCodeAt(i);
 	return [v, b];
 }
-
 function xw_noxfer(data, cb) {
 	var worker = new Worker(XW.noxfer);
 	worker.onmessage = function(e) {
@@ -115,7 +107,6 @@ function xw_noxfer(data, cb) {
 	var arr = rABS ? data : btoa(fixdata(data));
 	worker.postMessage({d:arr,b:rABS});
 }
-
 function xw_xfer(data, cb) {
 	var worker = new Worker(rABS ? XW.rABS : XW.norABS);
 	worker.onmessage = function(e) {
@@ -132,13 +123,11 @@ function xw_xfer(data, cb) {
 		worker.postMessage(data, [data]);
 	}
 }
-
 function xw(data, cb) {
 	transferable = document.getElementsByName("xferable")[0].checked;
 	if(transferable) xw_xfer(data, cb);
 	else xw_noxfer(data, cb);
 }
-
 function get_radio_value( radioName ) {
 	var radios = document.getElementsByName( radioName );
 	for( var i = 0; i < radios.length; i++ ) {
@@ -147,9 +136,7 @@ function get_radio_value( radioName ) {
 		}
 	}
 }
-
 var all_employees = [];
-
 function Employee(name) {
 	this.first_name = name;
 	this.grey_hours = 0;
@@ -160,7 +147,6 @@ function Employee(name) {
 	this.weekend_shifts = 0;
 	this.weekend_hours = 0;
 }
-
 function in_employee_list(name) {
 	for (i = 0; i < all_employees.length; i++) {
 		if (name == all_employees[i].first_name) {
@@ -170,7 +156,6 @@ function in_employee_list(name) {
 	// not in list yet, need to add it 
 	return -1;
 }
-
 //return true if weekday, false if weekned
 function is_weekday(day) {
 	if (day == "Monday" || day == "Tuesday" || day == "Wednesday" || day == "Thursday" || day == "Friday") {
@@ -178,7 +163,6 @@ function is_weekday(day) {
 	}
 	return false;
 }
-
 function add_to_greys(shift,employee,weekend) {
 	if (shift == "N16") {
 		employee.night_hours += 16;
@@ -221,7 +205,6 @@ function add_to_greys(shift,employee,weekend) {
 		}
 	}
 }
-
 function add_to_mis(shift,employee,weekend) {
 	if (shift == "N16") {
 		employee.night_hours += 16;
@@ -264,12 +247,10 @@ function add_to_mis(shift,employee,weekend) {
 		}
 	}
 }
-
 function add_weekend_info(hours, employee) {
 	employee.weekend_shifts += 1;
 	employee.weekend_hours += hours;
 }
-
 function add_to_royal(shift,employee,weekend) {
 	if (shift == "N16") {
 		employee.night_hours += 16;
@@ -312,7 +293,6 @@ function add_to_royal(shift,employee,weekend) {
 		}
 	}
 }
-
 function add_to_hospital(shift,hospital,employee,weekend) {
 	//console.log("IN CALLING HOSPITAL")
 	if (hospital == "Grey Nuns Hospital") {
@@ -328,7 +308,6 @@ function add_to_hospital(shift,hospital,employee,weekend) {
 		add_to_royal(shift,employee,weekend);
 	}
 }
-
 // Change format so its not if weekday or weekend, check that within when you have to pass N16
 function handle_hours(row) {
 	var hospitals = ["Grey Nuns Hospital", "Misericordia Hospital", "Royal Alexandra Hospital"];
@@ -370,7 +349,6 @@ function handle_hours(row) {
 			if (weekend_employees.length == 1) {
 				//console.log("IN LENGTH == 1 ONLY ONE PERSON ON WEEKEND");
 				var name = weekend_employees[0];
-
 				// just like before (put them together somehow for unrepeated code)
 				var in_list = in_employee_list(name);
 				if (in_list != -1) {
@@ -415,12 +393,10 @@ function handle_hours(row) {
 					}
 				}
 			}
-
 		}
 	}
 	console.log(all_employees)
 }
-
 function to_json(workbook) {
 	var result = {};
 	//console.log("IN TO_JSON");
@@ -437,7 +413,6 @@ function to_json(workbook) {
 	});
 	return result;
 }
-
 function to_csv(workbook) {
 	var result = [];
 	console.log("IN TO_CSV");
@@ -451,7 +426,6 @@ function to_csv(workbook) {
 	});
 	return result.join("\n");
 }
-
 function to_formulae(workbook) {
 	var result = [];
 	workbook.SheetNames.forEach(function(sheetName) {
@@ -464,14 +438,12 @@ function to_formulae(workbook) {
 	});
 	return result.join("\n");
 }
-
 var tarea = document.getElementById('b64data');
 function b64it() {
 	if(typeof console !== 'undefined') console.log("onload", new Date());
 	var wb = X.read(tarea.value, {type: 'base64',WTF:wtf_mode});
 	process_wb(wb);
 }
-
 function print_details() {
 	var output = "";
 	for(var i = 0; i < all_employees.length; i++) {
@@ -480,21 +452,20 @@ function print_details() {
 		var total_hours = employee.grey_hours + employee.mis_hours + employee.royal_hours;
 		var total_weekend_shifts = employee.weekend_shifts;
 		var total_weekend_hours = employee.weekend_hours;
-		var heading = "Name: " + name;
-		var total = "Total hours:" + total_hours;
-		var grey = "Grey Nuns Hospital: " + employee.grey_hours;
-		var mis = "Misericordia Hospital" + employee.mis_hours;
-		var royal = "Royal Alexandra Hospital" + employee.royal_hours;
-		var weekend_shifts = "Total weekend shifts: " + total_weekend_shifts;
-		var weekend_hours = "Total weekend hours: " + total_weekend_hours;
-		var output = heading + total + grey + mis + royal + weekend_shifts + weekend_hours;
-		return output;
+		var heading = "Name: " + name + "\n";
+		var total = "Total hours:" + total_hours + "\n";
+		var grey = "Grey Nuns Hospital: " + employee.grey_hours + "\n";
+		var mis = "Misericordia Hospital: " + employee.mis_hours + "\n";
+		var royal = "Royal Alexandra Hospital: " + employee.royal_hours + "\n";
+		var weekend_shifts = "Total weekend shifts: " + total_weekend_shifts + "\n";
+		var weekend_hours = "Total weekend hours: " + total_weekend_hours + "\n";
+		var out = heading + total + grey + mis + royal + weekend_shifts + weekend_hours + "\n";
+		output += out;
 	}
+	return output;
 }
-
 function process_wb(wb) {
 	var output = "";
-
 	switch(get_radio_value("format")) {
 		case "json":
 			output = JSON.stringify(to_json(wb), 2, 2);
@@ -512,7 +483,6 @@ function process_wb(wb) {
 	else out.innerText = output;
 	if(typeof console !== 'undefined') console.log("output", new Date());
 }
-
 var drop = document.getElementById('drop');
 function handleDrop(e) {
 	e.stopPropagation();
@@ -544,20 +514,16 @@ function handleDrop(e) {
 		else reader.readAsArrayBuffer(f);
 	}
 }
-
 function handleDragover(e) {
 	e.stopPropagation();
 	e.preventDefault();
 	e.dataTransfer.dropEffect = 'copy';
 }
-
 if(drop.addEventListener) {
 	drop.addEventListener('dragenter', handleDragover, false);
 	drop.addEventListener('dragover', handleDragover, false);
 	drop.addEventListener('drop', handleDrop, false);
 }
-
-
 var xlf = document.getElementById('xlf');
 function handleFile(e) {
 	rABS = document.getElementsByName("userabs")[0].checked;
@@ -587,7 +553,6 @@ function handleFile(e) {
 		else reader.readAsArrayBuffer(f);
 	}
 }
-
 if(xlf.addEventListener) xlf.addEventListener('change', handleFile, false);
 </script>
 </body>
